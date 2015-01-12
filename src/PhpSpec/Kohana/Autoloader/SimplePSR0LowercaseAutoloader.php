@@ -2,24 +2,71 @@
 
 namespace PhpSpec\Kohana\Autoloader;
 
+use PhpSpec\Kohana\Util\Filesystem;
+
 class SimplePSR0LowercaseAutoloader
 {
 
-	private $classesDirectory;
+	private $filesystem;
+	private $applicationDir;
+	private $modulesDir;
+	private $systemDir;
 
-	public function __construct($classesDirectory)
+	private $classesSubdirectory = '/classes/';
+
+	public function __construct(Filesystem $filesystem, $applicationDir, $modulesDir, $systemDir)
 	{
-		$this->classesDirectory = $classesDirectory;
+		$this->filesystem = $filesystem;
+		$this->applicationDir = $applicationDir;
+		$this->modulesDir = $modulesDir;
+		$this->systemDir = $systemDir;
 	}
 
 	public function loadClass($classname)
 	{
-		$file = $this->classesDirectory . str_replace('_', DIRECTORY_SEPARATOR, strtolower($classname)) . '.php';
+		$fileName = $this->convertClassNameToFileName($classname);
+		$possibleFileLocations = array();
 
-		if (is_file($file)) {
-			require $file;
+		$possibleFileLocations[] = $this->getClassFilePathInApplicationDir($fileName);
+		$possibleFileLocations[] = $this->getClassFilePathInSystemDir($fileName);
+		$possibleFileLocations = array_merge($possibleFileLocations, $this->getClassFilePathesInModulesDir($fileName));
+
+		foreach ($possibleFileLocations as $file) {
+
+			if (is_file($file)) {
+
+				require $file;
+
+				break;
+			}
 		}
 	}
 
+	private function getClassFilePathInApplicationDir($fileName)
+	{
+		return $this->applicationDir . $this->classesSubdirectory . $fileName;
+	}
+
+	private function getClassFilePathInSystemDir($fileName)
+	{
+		return $this->systemDir . $this->classesSubdirectory . $fileName;
+	}
+
+	private function getClassFilePathesInModulesDir($fileName)
+	{
+		$modules = $this->filesystem->getSubdirectories($this->modulesDir);
+
+		$result = array();
+		foreach ($modules as $moduleDir) {
+			$result[] = $moduleDir . $this->classesSubdirectory . $fileName;
+		}
+
+		return $result;
+	}
+
+	private function convertClassNameToFileName($classname)
+	{
+		return str_replace('_', DIRECTORY_SEPARATOR, strtolower($classname)) . '.php';
+	}
 
 }

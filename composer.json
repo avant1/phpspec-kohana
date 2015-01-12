@@ -25,6 +25,10 @@
         {
             "name": "Jon Acker",
             "email": "jacker@inviqa.com"
-        }
+        },
+	    {
+		    "name": "Kirill Krolik",
+		    "email": "yoursuffer@gmail.com"
+	    }
     ]
 }

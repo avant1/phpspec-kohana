@@ -8,6 +8,7 @@ use PhpSpec\Kohana\Generator\KohanaCodeGenerator;
 use PhpSpec\Kohana\Generator\KohanaGenerator;
 use PhpSpec\Kohana\Generator\KohanaSpecificationGenerator;
 use PhpSpec\Kohana\Locator\PSR0Locator;
+use PhpSpec\Kohana\Util\Filesystem;
 use PhpSpec\ServiceContainer;
 
 class Extension implements ExtensionInterface
@@ -54,8 +55,9 @@ class Extension implements ExtensionInterface
 		}
 
 		$applicationRoot = $container->getParam('application_root');
-		$classesDirectory = $applicationRoot . '/classes/';
-		$autoloader = new SimplePSR0LowercaseAutoloader($classesDirectory);
+		$modulesRoot = $container->getParam('modules_root');
+		$systemRoot = $container->getParam('system_root');
+		$autoloader = new SimplePSR0LowercaseAutoloader(new Filesystem(), $applicationRoot, $modulesRoot, $systemRoot);
 
 		spl_autoload_register(array($autoloader, 'loadClass'));
 	}
