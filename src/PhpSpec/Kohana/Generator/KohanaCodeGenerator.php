@@ -39,7 +39,7 @@ class KohanaCodeGenerator extends ClassGenerator
         return file_get_contents(__FILE__, null, null, __COMPILER_HALT_OFFSET__);
     }
 }
-__halt_compiler();<?php
+__halt_compiler();<?php defined('SYSPATH') or die('No direct script access.');
 
 class %name%
 {
