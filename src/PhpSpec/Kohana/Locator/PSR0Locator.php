@@ -35,7 +35,7 @@ class PSR0Locator implements ResourceLocatorInterface
     private $filesystem;
 
     /**
-     * @var Class to be spec'd
+     * @var string Class to be spec'd
      */
     private $specifiedClass;
 
@@ -98,7 +98,7 @@ class PSR0Locator implements ResourceLocatorInterface
         $fullSpecPath = $this->getFullSpecPath();
 
         if ('.php' === substr($query, -4)) {
-            $resources = array($this->createResourceFromSpecFile($fullQueryPath, $fullSpecPath));
+            $resources = array($this->createResourceFromSpecFile($fullQueryPath));
         } else {
             $resources = $this->createResourcesFromSpecFiles($fullSpecPath);
         }
@@ -174,15 +174,14 @@ class PSR0Locator implements ResourceLocatorInterface
 
     /**
      * @param $specPath
-     * @param $fullSpecPath
      *
      * @return null|ResourceInterface
      *
      * @throws \PhpSpec\Exception\Exception
      */
-    private function createResourceFromSpecFile($specPath, $fullSpecPath)
+    private function createResourceFromSpecFile($specPath)
     {
-        preg_match('/^class\s+([a-zA-Z0-9_]+)Spec/m', file_get_contents($specPath), $matches);
+        preg_match('/^class\s+([a-zA-Z0-9_]+)Spec/m', $this->filesystem->getFileContents($specPath), $matches);
 
         if (count($matches) < 2) {
             throw new Exception('Could not create resource from ', $specPath);
@@ -200,9 +199,9 @@ class PSR0Locator implements ResourceLocatorInterface
     {
         $resources = array();
 
-        foreach ($this->filesystem->findPhpFilesIn($fullSpecPath) as $file) {
+        foreach ($this->filesystem->findSpecFilesIn($fullSpecPath) as $file) {
             $specFile = $file->getRealPath();
-            $resources[] = $this->createResourceFromSpecFile($specFile, $fullSpecPath);
+            $resources[] = $this->createResourceFromSpecFile($specFile);
         }
 
         return $resources;
