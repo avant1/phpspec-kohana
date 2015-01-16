@@ -3,12 +3,9 @@
 namespace PhpSpec\Kohana;
 
 use PhpSpec\Extension\ExtensionInterface;
-use PhpSpec\Kohana\Autoloader\SimplePSR0LowercaseAutoloader;
 use PhpSpec\Kohana\Generator\KohanaCodeGenerator;
-use PhpSpec\Kohana\Generator\KohanaGenerator;
 use PhpSpec\Kohana\Generator\KohanaSpecificationGenerator;
 use PhpSpec\Kohana\Locator\PSR0Locator;
-use PhpSpec\Kohana\Util\Filesystem;
 use PhpSpec\ServiceContainer;
 
 class Extension implements ExtensionInterface
