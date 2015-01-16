@@ -19,14 +19,15 @@ class Extension implements ExtensionInterface
      */
     public function load(ServiceContainer $container)
     {
-		$this->enableSPR0LowercaseAutoloaderIfNeeded($container);
-
-		$this->defineSyspathConstantIfNotDefined($container);
+		$documentRoot = $container->getParam('document_root');
+		$this->doKohanaSpecificStuff($documentRoot);
 
         $container->addConfigurator(function(ServiceContainer $c) {
             $c->setShared('locator.locators.kohana_locator',
                 function(ServiceContainer $c) {
-                    $applicationRoot = $c->getParam('application_root');
+					$documentRoot = $c->getParam('document_root');
+					$applicationRoot = $documentRoot . '/application/';
+
                     return new PSR0Locator(null, null, $applicationRoot . '/classes/', $applicationRoot . '/spec/');
                 }
             );
@@ -47,37 +48,34 @@ class Extension implements ExtensionInterface
         });
     }
 
-	private function enableSPR0LowercaseAutoloaderIfNeeded(ServiceContainer $container)
+	private function doKohanaSpecificStuff($documentRoot)
 	{
-		if (!$container->getParam('enable_psr0_lowercase_autoloader')) {
+		$application = 'application';
+		$modules = 'modules';
+		$system = 'system';
+		define('EXT', '.php');
 
-			return;
+		define('DOCROOT', realpath(dirname($documentRoot)).DIRECTORY_SEPARATOR);
+		if ( ! is_dir($application) AND is_dir(DOCROOT.$application)) {
+			$application = DOCROOT.$application;
 		}
 
-		$applicationRoot = $container->getParam('application_root');
-		$modulesRoot = $container->getParam('modules_root');
-		$systemRoot = $container->getParam('system_root');
-		$autoloader = new SimplePSR0LowercaseAutoloader(new Filesystem(), $applicationRoot, $modulesRoot, $systemRoot);
-
-		spl_autoload_register(array($autoloader, 'loadClass'));
-	}
-
-	/**
-	 * SYSPATH constant is needed to handle default Kohana file templates,
-	 * with "defined('SYSPATH') OR die('No direct script access.');" at the beginning.
-	 *
-	 * @param ServiceContainer $container
-	 */
-	private function defineSyspathConstantIfNotDefined(ServiceContainer $container)
-	{
-		if (defined('SYSPATH')) {
-
-			return;
+		if ( ! is_dir($modules) AND is_dir(DOCROOT.$modules)) {
+			$modules = DOCROOT.$modules;
 		}
 
-		$applicationRoot = $container->getParam('application_root');
-		$syspath = realpath($applicationRoot . '/../system/');
-		define('SYSPATH', $syspath);
+		// Make the system relative to the docroot, for symlink'd index.php
+		if ( ! is_dir($system) AND is_dir(DOCROOT.$system)) {
+			$system = DOCROOT.$system;
+		}
+
+		// Define the absolute paths for configured directories
+		define('APPPATH', realpath($application).DIRECTORY_SEPARATOR);
+		define('MODPATH', realpath($modules).DIRECTORY_SEPARATOR);
+		define('SYSPATH', realpath($system).DIRECTORY_SEPARATOR);
+
+		// Bootstrap the application
+		require APPPATH.'bootstrap'.EXT;
 	}
 
 }

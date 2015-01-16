@@ -1,7 +1,4 @@
-application_root: application
-modules_root: modules
-system_root: system
-enable_psr0_lowercase_autoloader: true
+document_root: .
 
 extensions:
     - PhpSpec\Kohana\Extension
