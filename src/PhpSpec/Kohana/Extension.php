@@ -73,6 +73,10 @@ class Extension implements ExtensionInterface
 
 		// Bootstrap the application
 		require APPPATH.'bootstrap'.EXT;
+
+		/** @noinspection PhpUndefinedClassInspection */
+		\Kohana::$errors = false;
+
 	}
 
 }
