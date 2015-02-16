@@ -12,10 +12,10 @@ use PhpSpec\Util\Filesystem;
 class Extension implements ExtensionInterface
 {
 
-	public function __construct(Filesystem $filesystem = null)
-	{
-		$this->filesystem = $filesystem ?: new Filesystem();
-	}
+    public function __construct(Filesystem $filesystem = null)
+    {
+        $this->filesystem = $filesystem ?: new Filesystem();
+    }
 
     /**
      * @param ServiceContainer $container
@@ -35,20 +35,20 @@ class Extension implements ExtensionInterface
                 }
             );
 
-			/** @noinspection PhpUndefinedClassInspection */
-			foreach (\Kohana::modules() as $moduleName => $modulePath) {
-				$serviceName = sprintf('locator.locators.kohana_module_%s_locator', $moduleName);
-				if (!$this->filesystem->isDirectory($modulePath . 'spec/')) {
-					continue;
-				}
+            /** @noinspection PhpUndefinedClassInspection */
+            foreach (\Kohana::modules() as $moduleName => $modulePath) {
+                $serviceName = sprintf('locator.locators.kohana_module_%s_locator', $moduleName);
+                if (!$this->filesystem->isDirectory($modulePath . 'spec/')) {
+                    continue;
+                }
 
-				$c->setShared($serviceName,
-					function() use ($modulePath) {
+                $c->setShared($serviceName,
+                    function() use ($modulePath) {
 
-						return new PSR0Locator(null, null, $modulePath . '/classes/', $modulePath . 'spec/');
-					}
-				);
-			}
+                        return new PSR0Locator(null, null, $modulePath . '/classes/', $modulePath . 'spec/');
+                    }
+                );
+            }
         });
 
         $container->setShared('code_generator.generators.kohana_class', function (ServiceContainer $c) {
@@ -91,6 +91,11 @@ class Extension implements ExtensionInterface
         define('APPPATH', realpath($application).DIRECTORY_SEPARATOR);
         define('MODPATH', realpath($modules).DIRECTORY_SEPARATOR);
         define('SYSPATH', realpath($system).DIRECTORY_SEPARATOR);
+
+        if ( ! defined('KOHANA_ENV'))
+        {
+            define('KOHANA_ENV', 'DEVELOPMENT');
+        }
 
         // Bootstrap the application
         require APPPATH.'bootstrap'.EXT;
