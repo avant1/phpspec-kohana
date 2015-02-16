@@ -7,9 +7,15 @@ use PhpSpec\Kohana\Generator\KohanaCodeGenerator;
 use PhpSpec\Kohana\Generator\KohanaSpecificationGenerator;
 use PhpSpec\Kohana\Locator\PSR0Locator;
 use PhpSpec\ServiceContainer;
+use PhpSpec\Util\Filesystem;
 
 class Extension implements ExtensionInterface
 {
+
+	public function __construct(Filesystem $filesystem = null)
+	{
+		$this->filesystem = $filesystem ?: new Filesystem();
+	}
 
     /**
      * @param ServiceContainer $container
@@ -28,6 +34,21 @@ class Extension implements ExtensionInterface
                     return new PSR0Locator(null, null, $applicationRoot . '/classes/', $applicationRoot . '/spec/');
                 }
             );
+
+			/** @noinspection PhpUndefinedClassInspection */
+			foreach (\Kohana::modules() as $moduleName => $modulePath) {
+				$serviceName = sprintf('locator.locators.kohana_module_%s_locator', $moduleName);
+				if (!$this->filesystem->isDirectory($modulePath . 'spec/')) {
+					continue;
+				}
+
+				$c->setShared($serviceName,
+					function() use ($modulePath) {
+
+						return new PSR0Locator(null, null, $modulePath . '/classes/', $modulePath . 'spec/');
+					}
+				);
+			}
         });
 
         $container->setShared('code_generator.generators.kohana_class', function (ServiceContainer $c) {
