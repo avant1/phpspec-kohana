@@ -53,7 +53,6 @@ class PSR0Locator implements ResourceLocatorInterface
         $this->srcPath = rtrim(realpath($srcPath), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
         $this->specPath = $specPath;
         $this->filesystem = $filesystem ?: new Filesystem();
-        $this->srcPath = $srcPath;
     }
 
     /**
@@ -113,6 +112,12 @@ class PSR0Locator implements ResourceLocatorInterface
      */
     public function supportsClass($classname)
     {
+        $resource = $this->createResource($classname);
+        if (!$this->filesystem->pathExists($resource->getSrcFilename())) {
+
+            return false;
+        }
+
         $isSupported = preg_match('/^(([a-zA-Z0-9]+)_?)+$/', $classname);
 
         return $isSupported;

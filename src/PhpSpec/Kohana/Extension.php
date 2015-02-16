@@ -12,6 +12,9 @@ use PhpSpec\Util\Filesystem;
 class Extension implements ExtensionInterface
 {
 
+    /** @var Filesystem */
+    private $filesystem;
+
     public function __construct(Filesystem $filesystem = null)
     {
         $this->filesystem = $filesystem ?: new Filesystem();
@@ -39,7 +42,7 @@ class Extension implements ExtensionInterface
             foreach (\Kohana::modules() as $moduleName => $modulePath) {
                 $serviceName = sprintf('locator.locators.kohana_module_%s_locator', $moduleName);
                 if (!$this->filesystem->isDirectory($modulePath . 'spec/')) {
-                    continue;
+                    $this->filesystem->makeDirectory($modulePath . 'spec/');
                 }
 
                 $c->setShared($serviceName,
