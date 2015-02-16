@@ -16,14 +16,14 @@ class Extension implements ExtensionInterface
      */
     public function load(ServiceContainer $container)
     {
-		$documentRoot = $container->getParam('document_root');
-		$this->doKohanaSpecificStuff($documentRoot);
+        $documentRoot = $container->getParam('document_root');
+        $this->doKohanaSpecificStuff($documentRoot);
 
         $container->addConfigurator(function(ServiceContainer $c) {
             $c->setShared('locator.locators.kohana_locator',
                 function(ServiceContainer $c) {
-					$documentRoot = $c->getParam('document_root');
-					$applicationRoot = $documentRoot . '/application/';
+                    $documentRoot = $c->getParam('document_root');
+                    $applicationRoot = $documentRoot . '/application/';
 
                     return new PSR0Locator(null, null, $applicationRoot . '/classes/', $applicationRoot . '/spec/');
                 }
@@ -45,38 +45,38 @@ class Extension implements ExtensionInterface
         });
     }
 
-	private function doKohanaSpecificStuff($documentRoot)
-	{
-		$application = 'application';
-		$modules = 'modules';
-		$system = 'system';
-		define('EXT', '.php');
+    private function doKohanaSpecificStuff($documentRoot)
+    {
+        $application = 'application';
+        $modules = 'modules';
+        $system = 'system';
+        define('EXT', '.php');
 
-		define('DOCROOT', realpath(dirname($documentRoot)).DIRECTORY_SEPARATOR);
-		if ( ! is_dir($application) AND is_dir(DOCROOT.$application)) {
-			$application = DOCROOT.$application;
-		}
+        define('DOCROOT', realpath(dirname($documentRoot)).DIRECTORY_SEPARATOR);
+        if ( ! is_dir($application) AND is_dir(DOCROOT.$application)) {
+            $application = DOCROOT.$application;
+        }
 
-		if ( ! is_dir($modules) AND is_dir(DOCROOT.$modules)) {
-			$modules = DOCROOT.$modules;
-		}
+        if ( ! is_dir($modules) AND is_dir(DOCROOT.$modules)) {
+            $modules = DOCROOT.$modules;
+        }
 
-		// Make the system relative to the docroot, for symlink'd index.php
-		if ( ! is_dir($system) AND is_dir(DOCROOT.$system)) {
-			$system = DOCROOT.$system;
-		}
+        // Make the system relative to the docroot, for symlink'd index.php
+        if ( ! is_dir($system) AND is_dir(DOCROOT.$system)) {
+            $system = DOCROOT.$system;
+        }
 
-		// Define the absolute paths for configured directories
-		define('APPPATH', realpath($application).DIRECTORY_SEPARATOR);
-		define('MODPATH', realpath($modules).DIRECTORY_SEPARATOR);
-		define('SYSPATH', realpath($system).DIRECTORY_SEPARATOR);
+        // Define the absolute paths for configured directories
+        define('APPPATH', realpath($application).DIRECTORY_SEPARATOR);
+        define('MODPATH', realpath($modules).DIRECTORY_SEPARATOR);
+        define('SYSPATH', realpath($system).DIRECTORY_SEPARATOR);
 
-		// Bootstrap the application
-		require APPPATH.'bootstrap'.EXT;
+        // Bootstrap the application
+        require APPPATH.'bootstrap'.EXT;
 
-		/** @noinspection PhpUndefinedClassInspection */
-		\Kohana::$errors = false;
+        /** @noinspection PhpUndefinedClassInspection */
+        \Kohana::$errors = false;
 
-	}
+    }
 
 }
